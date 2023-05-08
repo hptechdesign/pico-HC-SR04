@@ -19,6 +19,7 @@ add_executable(${NAME}
     main.cpp
     serial.cpp
     sensor.cpp
+    crc.cpp
 )
 
 

@@ -14,6 +14,7 @@
 #include "sensor.h"
 #include "hardware/uart.h"
 #include "hardware/gpio.h"
+#include "crc.h"
 
 #define ECU_SENSOR_SPOOFER
 #define uart0   ((uart_inst_t *)uart0_hw)
@@ -76,7 +77,7 @@ void serial_encapsulateSensorData(void)
 {
     if(1) // consider checking if tx is in progress, e.g. if using interrupt
           // driven tx
-    {
+    {   uint16_t crc_bytes=0;
         tx_sensor_data[crank_rpm_delimit] = 'S';
         tx_sensor_data[crank_rpm_x1000]   = (BYTE)(sensor_getCrankRpm() / 1000);
         tx_sensor_data[crank_rpm_x100] =
@@ -125,8 +126,9 @@ void serial_encapsulateSensorData(void)
         tx_sensor_data[intake_airflow_res2]    = (BYTE)0;
         tx_sensor_data[intake_airflow_res3]    = (BYTE)0;
         tx_sensor_data[intake_airflow_res4]    = (BYTE)0;
-        tx_sensor_data[sensor_crc_byte1]       = (BYTE)0xBE;
-        tx_sensor_data[sensor_crc_byte2]       = (BYTE)0xEF;
+        crc_bytes = crcFast(&tx_sensor_data[0], (size_t) 31);
+        tx_sensor_data[sensor_crc_byte1]       = (BYTE) (crc_bytes>>8) & 0xFF;
+        tx_sensor_data[sensor_crc_byte2]       = (BYTE) crc_bytes & 0xFF;
     }
 }
 
@@ -191,3 +193,4 @@ void serial_SendBuf(BYTE * buf, int bufSize)
         uart_putc_raw(uart0, (char) *buf++);
     }
 }
+
