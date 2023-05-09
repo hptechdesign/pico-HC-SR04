@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 # Change your executable name to something creative!
-set(NAME pico-boilerplate) # <-- Name your project/executable here!
+set(NAME pico-ecu-sensormcu) # <-- Name your project/executable here!
 
 include(pimoroni_pico_import.cmake)
 include(pico_sdk_import.cmake)
@@ -16,7 +16,10 @@ pico_sdk_init()
 
 # Add your source files
 add_executable(${NAME}
-    main.cpp # <-- Add source files here!
+    main.cpp
+    serial.cpp
+    sensor.cpp
+    crc.cpp
 )
 
 # Include required libraries
@@ -26,15 +29,20 @@ include(common/pimoroni_bus)
 include(libraries/bitmap_fonts/bitmap_fonts)
 include(libraries/hershey_fonts/hershey_fonts)
 include(libraries/pico_explorer/pico_explorer)
+include(drivers/rgbled/rgbled)
+include(drivers/button/button)
+include(libraries/pico_display_2/pico_display_2)
 
-# Don't forget to link the libraries you need!
-target_link_libraries(${NAME}
-    pimoroni_i2c
-    pico_explorer # <-- List libraries here!
-)
-
-# create map/bin/hex file etc.
-pico_add_extra_outputs(${NAME})
+# Pull in pico libraries that we need
+target_link_libraries(${NAME}   pico_stdlib
+                                hardware_spi
+                                hardware_pwm
+                                hardware_dma
+                                rgbled
+                                button
+                                pico_display_2
+                                st7789
+                                pico_graphics)
 
 # Set up files for the release packages
 install(FILES
@@ -46,3 +54,10 @@ install(FILES
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
 set(CPACK_GENERATOR "ZIP" "TGZ")
 include(CPack)
+
+# Enable USB printf
+pico_enable_stdio_usb(${NAME} 1)
+pico_enable_stdio_uart(${NAME} 0)
+
+# create map/bin/hex file etc.
+pico_add_extra_outputs(${NAME})
