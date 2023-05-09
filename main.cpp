@@ -12,6 +12,7 @@
 #include "serial.h"
 #include "sensor.h"
 #include "pico/stdlib.h"
+#include "stdio.h"
 
 using namespace pimoroni;
 
@@ -38,7 +39,7 @@ static   Point text_location(0, 0);
 
 int main() {
 
-
+  stdio_init_all();
   static repeating_timer_t timer;
 
   st7789.set_backlight(255);

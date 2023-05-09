@@ -22,7 +22,6 @@ add_executable(${NAME}
     crc.cpp
 )
 
-
 # Include required libraries
 # This assumes `pimoroni-pico` is stored alongside your project
 include(common/pimoroni_i2c)
@@ -45,9 +44,6 @@ target_link_libraries(${NAME}   pico_stdlib
                                 st7789
                                 pico_graphics)
 
-# create map/bin/hex file etc.
-pico_add_extra_outputs(${NAME})
-
 # Set up files for the release packages
 install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.uf2
@@ -58,3 +54,10 @@ install(FILES
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
 set(CPACK_GENERATOR "ZIP" "TGZ")
 include(CPack)
+
+# Enable USB printf
+pico_enable_stdio_usb(${NAME} 1)
+pico_enable_stdio_uart(${NAME} 0)
+
+# create map/bin/hex file etc.
+pico_add_extra_outputs(${NAME})

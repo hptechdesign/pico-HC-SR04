@@ -15,6 +15,7 @@
 #include "hardware/uart.h"
 #include "hardware/gpio.h"
 #include "crc.h"
+#include "stdio.h"
 
 #define ECU_SENSOR_SPOOFER
 #define uart0   ((uart_inst_t *)uart0_hw)
@@ -51,6 +52,7 @@ static BYTE tx_control_data[CONTROL_FRAME_SIZE];
 
 static serial_modes_t serial_mode;
 int ser_payloadsSent          = 0;
+uint16_t crc_bytes=0;
 
 /**
  * @brief serial_sendSensorPacket
@@ -77,7 +79,7 @@ void serial_encapsulateSensorData(void)
 {
     if(1) // consider checking if tx is in progress, e.g. if using interrupt
           // driven tx
-    {   uint16_t crc_bytes=0;
+    {   
         tx_sensor_data[crank_rpm_delimit] = 'S';
         tx_sensor_data[crank_rpm_x1000]   = (BYTE)(sensor_getCrankRpm() / 1000);
         tx_sensor_data[crank_rpm_x100] =
@@ -127,8 +129,15 @@ void serial_encapsulateSensorData(void)
         tx_sensor_data[intake_airflow_res3]    = (BYTE)0;
         tx_sensor_data[intake_airflow_res4]    = (BYTE)0;
         crc_bytes = crcFast(&tx_sensor_data[0], (size_t) 31);
-        tx_sensor_data[sensor_crc_byte1]       = (BYTE) (crc_bytes>>8) & 0xFF;
-        tx_sensor_data[sensor_crc_byte2]       = (BYTE) crc_bytes & 0xFF;
+        char buf[32];
+        snprintf(&buf[0], 32, "\n\rCRC: %d",crc_bytes);
+        printf(buf);
+        tx_sensor_data[sensor_crc_byte1]       = (BYTE) ((crc_bytes>>8) & 0xFF);
+        snprintf(&buf[0], 32, "\n\rBYTE 1: %d",(BYTE) ((crc_bytes>>8) & 0xFF));
+        printf(buf);
+        tx_sensor_data[sensor_crc_byte2]       = (BYTE) (crc_bytes & 0xFF);
+        snprintf(&buf[0], 32, "\n\rBYTE 2: %d",(BYTE) (crc_bytes & 0xFF));
+        printf(buf);
     }
 }
 
@@ -171,7 +180,7 @@ int serial_init(void)
 
     serial_mode = mode_stream_data;
     printf("\nRunning in sensor sensor mode.");
-
+    crcInit();
     return (serial_mode);
 }
 
