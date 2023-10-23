@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 # Change your executable name to something creative!
-set(NAME pico-ecu-sensormcu) # <-- Name your project/executable here!
+set(NAME pico-HC-SR04) # <-- Name your project/executable here!
 
 include(pimoroni_pico_import.cmake)
 include(pico_sdk_import.cmake)
@@ -17,13 +17,16 @@ pico_sdk_init()
 # Add your source files
 add_executable(${NAME}
     main.cpp
-    serial.cpp
     sensor.cpp
     crc.cpp
 )
 
+
+
+
 # Include required libraries
 # This assumes `pimoroni-pico` is stored alongside your project
+
 include(common/pimoroni_i2c)
 include(common/pimoroni_bus)
 include(libraries/bitmap_fonts/bitmap_fonts)
@@ -32,6 +35,11 @@ include(libraries/pico_explorer/pico_explorer)
 include(drivers/rgbled/rgbled)
 include(drivers/button/button)
 include(libraries/pico_display_2/pico_display_2)
+include_directories(
+    pico-distance-sensor/include # Add servo-lib's include directory to get "servo.h"
+)
+# Add the subdirectory so the library gets compiled
+add_subdirectory(pico-distance-sensor)
 
 # Pull in pico libraries that we need
 target_link_libraries(${NAME}   pico_stdlib
@@ -42,7 +50,8 @@ target_link_libraries(${NAME}   pico_stdlib
                                 button
                                 pico_display_2
                                 st7789
-                                pico_graphics)
+                                pico_graphics
+                                distance-sensor)
 
 # Set up files for the release packages
 install(FILES

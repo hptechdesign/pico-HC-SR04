@@ -1,6 +1,7 @@
 {
     "cmake.configureSettings": {
-        // "PICO_SDK_PATH": "../../pico-sdk" // <-- Set this if you've not set ${env:PICO_SDK_PATH}
+        "PICO_SDK_PATH": "../../pico-sdk" // <-- Set this if you've not set ${env:PICO_SDK_PATH}
     },
-    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.default.compilerPath": "c:/vsarm/armcc/12.2 mpacbti-rel1/bin/arm-none-eabi-g++.exe",
 }
